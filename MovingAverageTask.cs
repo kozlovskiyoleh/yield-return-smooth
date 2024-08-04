@@ -1,3 +1,4 @@
+using Avalonia.Controls.Metadata;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,19 +8,22 @@ public static class MovingAverageTask
 {
 	public static IEnumerable<DataPoint> MovingAverage(this IEnumerable<DataPoint> data, int windowWidth)
 	{
-		//MyList<double> currentValues = new MyList<double>();
 		double sum = 0;
-		int count = 0;
-		foreach (DataPoint point in data.Take(windowWidth))
+		int passedElements = 0;
+		DataPoint dataPoint = null;
+		foreach(DataPoint point in data)
 		{
-            count++;
-            sum = sum + point.OriginalY;
-            if (count == windowWidth)
+			sum = sum + point.OriginalY;
+			passedElements++;
+			dataPoint = new DataPoint(point);
+			dataPoint = dataPoint.WithAvgSmoothedY(point.OriginalY);
+			if (passedElements == windowWidth)
 			{
-                yield return point.WithAvgSmoothedY(sum / count);
-				yield break;
+                dataPoint = dataPoint.WithAvgSmoothedY(sum / windowWidth);
+				passedElements = windowWidth - 1;
+				sum = dataPoint.OriginalY;
             }
-			yield return point.WithAvgSmoothedY(point.OriginalY);
-        }
+			yield return dataPoint;
+		}
 	}
 }
