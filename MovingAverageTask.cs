@@ -8,22 +8,23 @@ public static class MovingAverageTask
 {
 	public static IEnumerable<DataPoint> MovingAverage(this IEnumerable<DataPoint> data, int windowWidth)
 	{
-		double sum = 0;
-		int passedElements = 0;
+		LinkedList<double> window = new();
 		DataPoint dataPoint = null;
-		foreach(DataPoint point in data)
+		foreach (DataPoint point in data)
 		{
-			sum = sum + point.OriginalY;
-			passedElements++;
-			dataPoint = new DataPoint(point);
-			dataPoint = dataPoint.WithAvgSmoothedY(point.OriginalY);
-			if (passedElements == windowWidth)
-			{
-                dataPoint = dataPoint.WithAvgSmoothedY(sum / windowWidth);
-				passedElements = windowWidth - 1;
-				sum = dataPoint.OriginalY;
+            window.AddFirst(point.OriginalY);
+            if (window.Count < windowWidth)
+            {
+                dataPoint = point.WithAvgSmoothedY(point.OriginalY);
+				yield return dataPoint;
             }
-			yield return dataPoint;
-		}
+
+			if(window.Count == windowWidth)
+			{
+				dataPoint = point.WithAvgSmoothedY(window.Average());
+				yield return dataPoint;
+				window.RemoveLast();
+			}
+        }
 	}
 }
