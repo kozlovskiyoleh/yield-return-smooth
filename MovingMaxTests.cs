@@ -37,7 +37,7 @@ public class MovingMaxTests
 	}
 
 	[Test]
-	public void TwoValuesWithSmallWindow()
+ 	public void TwoValuesWithSmallWindow()
 	{
 		CheckMax(1, new[] { 10, 0.0 }, new[] { 10, 0.0 });
 	}
